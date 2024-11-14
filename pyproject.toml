@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "justnotiondb"
+version = "0.1.0"
+description = "A minimalistic python package focused solely on extracting databases from Notion"
+authors = [
+    "Matheus S. Rodrigues <matheus.srodr@gmail.com>"
+]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/matheussrod/justnotiondb"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+mkdocs = "^1.6.1"
+pytest-cov = "^5.0.0"
+mypy = "^1.10.0"
+types-pyyaml = "^6.0.12.20240311"
+mkdocs-material = "^9.5.25"
+mkdocs-include-dir-to-nav = "^1.2.0"
+mkdocstrings = {extras = ["python"], version = "^0.25.1"}
+requests-mock = "^1.12.1"
+types-requests = "^2.32.0.20241016"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report term-missing"
+filterwarnings = [
+    "ignore::UserWarning"
+]
