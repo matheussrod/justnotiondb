@@ -1,0 +1,2 @@
+# notion
+::: justnotiondb.notion
