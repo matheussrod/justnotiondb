@@ -39,10 +39,10 @@ def test_db_fetch(db_results):
                 json=db_results
             )
             db = DB(client=client, id='fake_db_id')
-            assert db.fetch(filter={}) == db_results
+            assert db.fetch() == [db_results]
 
 def test_db_get(db_results):
-    expeted_result = [{
+    expected_result = [{
         'date': '2022-01-01',
         'checkbox': True
     }]
@@ -56,7 +56,7 @@ def test_db_get(db_results):
                 json=db_results
             )
             db = DB(client=client, id='fake_db_id')
-            assert db.get(filter={}) == expeted_result
+            assert db.get() == expected_result
 
 def test_db_write_csv(tmp_path):
     content = [{'Name': 'Test Page', 'Status': 'In Progress'}]
