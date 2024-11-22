@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="assets/imgs/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -601,13 +601,22 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
 </code></pre></div></p>
 <p>Now you can create <code class="language-python highlight"><span class="n">DB</span></code> class passing the client and database ID. To get database ID visit <a href="https://developers.notion.com/reference/retrieve-a-database">Notion Database ID</a> to undestand how to do it.</p>
-<p>To extract the database use <code class="language-python highlight"><span class="n">get</span></code> method. It receives a filter and returns a list of dictionaries, where each dictionary represents a page in the database. The keys of each dictionary are the properties of the page, and the values are the values of the properties. Each property was processed according to its type. You can check how it was processed in the <code class="language-python highlight"><span class="n">processors</span><span class="o">.</span><span class="n">py</span></code> file.</p>
-<p>Visit <a href="https://developers.notion.com/reference/post-database-query-filter">Notion Database Query Filter</a> to understand how to build a filter.</p>
-<div class="language-python highlight"><pre><span></span><code><span class="n">db_filter</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">DB</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;database_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">db_filter</span><span class="p">)</span>
+<p>To extract the database use <code class="language-python highlight"><span class="n">get</span></code> method. It takes a filter and/or a sort and returns a list of dictionaries, where each dictionary represents a page in the database. The keys of each dictionary are the properties of the page, and the values are the values of the properties. Each property was processed according to its type. You can check how it was processed in the <code class="language-python highlight"><span class="n">processors</span><span class="o">.</span><span class="n">py</span></code> file.</p>
+<p>Visit <a href="https://developers.notion.com/reference/post-database-query-filter">Notion Database Query Filter</a> to understand how to build a filter and <a href="https://developers.notion.com/reference/post-database-query-sort">Notion Database Query Sort</a> to understand how to build a sort.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="nb">filter</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;property&#39;</span><span class="p">:</span> <span class="s1">&#39;Date&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;on_or_after&#39;</span><span class="p">:</span> <span class="s1">&#39;2025-01-01&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">sort</span> <span class="o">=</span> <span class="p">[{</span>
+    <span class="s2">&quot;property&quot;</span><span class="p">:</span> <span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;direction&quot;</span><span class="p">:</span> <span class="s2">&quot;descending&quot;</span>
+<span class="p">}]</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">DB</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;database_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
 
 <span class="c1"># It is also possible to extract raw data using `fetch` method</span>
-<span class="n">db_raw</span> <span class="o">=</span> <span class="n">DB</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;database_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">db_filter</span><span class="p">)</span>
+<span class="n">db_raw</span> <span class="o">=</span> <span class="n">DB</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;database_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
 </code></pre></div>
 <p>If you want, you can also write the results to a CSV or JSON file. Others formats are not supported yet.
 <div class="language-python highlight"><pre><span></span><code><span class="n">DB</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;file.csv&#39;</span><span class="p">)</span>
@@ -628,7 +637,7 @@
 <tr>
 <td>Date</td>
 <td>date</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. If it has end date it returns formatted as 'start -&gt; end', otherwise just start date</td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. If it has end date it returns formatted as "start -&gt; end", otherwise just start date</td>
 </tr>
 <tr>
 <td>Checkbox</td>
@@ -653,7 +662,7 @@
 <tr>
 <td>Multi-select</td>
 <td>multi_select</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with "||"</td>
 </tr>
 <tr>
 <td>Status</td>
@@ -663,12 +672,12 @@
 <tr>
 <td>Person</td>
 <td>people</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with "||"</td>
 </tr>
 <tr>
 <td>Files &amp; media</td>
 <td>files</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise names concatenated with "||"</td>
 </tr>
 <tr>
 <td>URL</td>
@@ -678,7 +687,7 @@
 <tr>
 <td>Email</td>
 <td>email</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise emails concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise emails concatenated with "||"</td>
 </tr>
 <tr>
 <td>Phone</td>
@@ -693,12 +702,12 @@
 <tr>
 <td>Relation</td>
 <td>relation</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise ids of related pages concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Otherwise ids of related pages concatenated with "||"</td>
 </tr>
 <tr>
 <td>Rollup</td>
 <td>rollup</td>
-<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Calculated number if any calculation is specified. Otherwise values ​​concatenated with <code class="language-python highlight"><span class="o">||</span></code></td>
+<td><code class="language-python highlight"><span class="kc">None</span></code> if empty. Calculated number if any calculation is specified. Otherwise values ​​concatenated with "||"</td>
 </tr>
 <tr>
 <td>Button</td>
