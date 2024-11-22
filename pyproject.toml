@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "justnotiondb"
-version = "0.1.0"
+version = "0.2.0"
 description = "A minimalistic python package focused solely on extracting databases from Notion"
 authors = [
     "Matheus S. Rodrigues <matheus.srodr@gmail.com>"
