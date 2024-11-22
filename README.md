@@ -35,16 +35,25 @@ print(client.error)
 
 Now you can create `DB` class passing the client and database ID. To get database ID visit [Notion Database ID](https://developers.notion.com/reference/retrieve-a-database) to undestand how to do it.
 
-To extract the database use `get` method. It receives a filter and returns a list of dictionaries, where each dictionary represents a page in the database. The keys of each dictionary are the properties of the page, and the values are the values of the properties. Each property was processed according to its type. You can check how it was processed in the `processors.py` file.
+To extract the database use `get` method. It takes a filter and/or a sort and returns a list of dictionaries, where each dictionary represents a page in the database. The keys of each dictionary are the properties of the page, and the values are the values of the properties. Each property was processed according to its type. You can check how it was processed in the `processors.py` file.
 
-Visit [Notion Database Query Filter](https://developers.notion.com/reference/post-database-query-filter) to understand how to build a filter.
+Visit [Notion Database Query Filter](https://developers.notion.com/reference/post-database-query-filter) to understand how to build a filter and [Notion Database Query Sort](https://developers.notion.com/reference/post-database-query-sort) to understand how to build a sort.
 
 ```python
-db_filter = {}
-db = DB(client=client, id='database_id').get(filter=db_filter)
+filter = {
+    'property': 'Date',
+    'date': {
+        'on_or_after': '2025-01-01'
+    }
+}
+sort = [{
+    "property": "Date",
+    "direction": "descending"
+}]
+db = DB(client=client, id='database_id').get(filter=filter, sort=sort)
 
 # It is also possible to extract raw data using `fetch` method
-db_raw = DB(client=client, id='database_id').fetch(filter=db_filter)
+db_raw = DB(client=client, id='database_id').fetch(filter=filter, sort=sort)
 ```
 
 If you want, you can also write the results to a CSV or JSON file. Others formats are not supported yet.
@@ -58,29 +67,29 @@ DB.write_json(content=db, path='file.json')
 
 Each property has a processor associated with it. These processors are responsible for extracting the property's value appropriately. Below is a list of all processors and how they process the value.
 
-| Notion property  | API type          | Action                                                                                                      |
-| ---------------- | ----------------- | ----------------------------------------------------------------------------------------------------------- |
-| Date             | date              | `None` if empty. If it has end date it returns formatted as 'start -> end', otherwise just start date       |
-| Checkbox         | checkbox          | It returns `True` or `False`                                                                                |
-| Text             | rich_text         | `None` if empty. Otherwise the content of the text                                                          |
-| Number           | number            | `None` if empty. Otherwise the n umber                                                                      |
-| Select           | select            | `None` if empty. Otherwise the name of the selected option                                                  |
-| Multi-select     | multi_select      | `None` if empty. Otherwise names concatenated with `||`                                                     |
-| Status           | status            | `None` if empty. Otherwise the name of the status                                                           |
-| Person           | people            | `None` if empty. Otherwise names concatenated with `||`                                                     |
-| Files & media    | files             | `None` if empty. Otherwise names concatenated with `||`                                                     |
-| URL              | url               | `None` if empty. Otherwise the url                                                                          |
-| Email            | email             | `None` if empty. Otherwise emails concatenated with `||`                                                    |
-| Phone            | phone_number      | `None` if empty. Otherwise phone number                                                                     |
-| Formula          | formula           | `None` if empty. Otherwise formula value                                                                    |
-| Relation         | relation          | `None` if empty. Otherwise ids of related pages concatenated with `||`                                      |
-| Rollup           | rollup            | `None` if empty. Calculated number if any calculation is specified. Otherwise values ​​concatenated with `||` |
-| Button           | button            | Always `None`                                                                                               |
-| Created time     | created_time      | `None` if empty. Otherwise the date                                                                         |
-| Created by       | created_by        | `None` if empty. Otherwise the person's name                                                                |
-| Last edited time | last_edited_time  | `None` if empty. Otherwise the date                                                                         |
-| Last edited by   | last_edited_by    | `None` if empty. Otherwise the person's name                                                                |
-| ID               | unique_id         | ID number                                                                                                   |
+| Notion property  | API type          | Action                                                                                                        |
+| ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| Date             | date              | `None` if empty. If it has end date it returns formatted as "start -> end", otherwise just start date         |
+| Checkbox         | checkbox          | It returns `True` or `False`                                                                                  |
+| Text             | rich_text         | `None` if empty. Otherwise the content of the text                                                            |
+| Number           | number            | `None` if empty. Otherwise the n umber                                                                        |
+| Select           | select            | `None` if empty. Otherwise the name of the selected option                                                    |
+| Multi-select     | multi_select      | `None` if empty. Otherwise names concatenated with "\|\|"                                                     |
+| Status           | status            | `None` if empty. Otherwise the name of the status                                                             |
+| Person           | people            | `None` if empty. Otherwise names concatenated with "\|\|"                                                     |
+| Files & media    | files             | `None` if empty. Otherwise names concatenated with "\|\|"                                                     |
+| URL              | url               | `None` if empty. Otherwise the url                                                                            |
+| Email            | email             | `None` if empty. Otherwise emails concatenated with "\|\|"                                                    |
+| Phone            | phone_number      | `None` if empty. Otherwise phone number                                                                       |
+| Formula          | formula           | `None` if empty. Otherwise formula value                                                                      |
+| Relation         | relation          | `None` if empty. Otherwise ids of related pages concatenated with "\|\|"                                      |
+| Rollup           | rollup            | `None` if empty. Calculated number if any calculation is specified. Otherwise values ​​concatenated with "\|\|" |
+| Button           | button            | Always `None`                                                                                                 |
+| Created time     | created_time      | `None` if empty. Otherwise the date                                                                           |
+| Created by       | created_by        | `None` if empty. Otherwise the person's name                                                                  |
+| Last edited time | last_edited_time  | `None` if empty. Otherwise the date                                                                           |
+| Last edited by   | last_edited_by    | `None` if empty. Otherwise the person's name                                                                  |
+| ID               | unique_id         | ID number                                                                                                     |
 
 ## Getting help
 If you encounter a clear bug, please file an issue with a minimal reproducible example on GitHub.
