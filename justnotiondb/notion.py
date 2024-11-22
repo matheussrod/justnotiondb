@@ -3,7 +3,7 @@ import csv
 import json
 from justnotiondb.processors import processors
 import requests
-from typing import Self
+from typing import Any, Optional, Self
 
 class NotionClient:
     """
@@ -89,54 +89,105 @@ class DB:
         self.client = client
         self.id = id
 
-    def fetch(self: Self, filter: dict) -> dict:
+    def fetch(
+        self: Self, 
+        filter: Optional[dict[str, Any]]=None,
+        sort: Optional[list[dict[str, str]]]=None,
+        pagination: bool = True
+    ) -> list[dict]:
         """
         Queries the database and fetches the results as a JSON object.
 
         Parameters
         ----------
-        filter : dict
-            A filter to be applied to the query.
+        filter : dict, optional
+            A filter to be applied to the query. Default is None.
             You can find more information here: https://developers.notion.com/reference/post-database-query-filter
 
+        sort : list, optional
+            A list of sorting options to be applied to the query. Default is None.
+            You can find more information here: https://developers.notion.com/reference/post-database-query-sort
+
+        pagination : bool
+            If `True`, when the database has more than 100 records, paging will be used to retrieve all records.
+            If `False`, only the first 100 records will be retrieved.
+        
         Returns
         -------
-        dict
-            A JSON object containing the query results.
+        list[dict]
+            A list of dictionaries, each representing a page in the database.
         """
         url = f"{self.client.url}/databases/{self.id}/query"
-        response = requests.post(
-            url, 
-            headers=self.client.headers,
-            data=json.dumps(filter)
-        )
-        response.raise_for_status()
-        return response.json()
 
-    def get(self: Self, filter: dict={}) -> list[dict]:
+        data: dict[str, Any] = {}
+        if filter is not None:
+            data['filter'] = filter
+        if sort is not None:
+            data['sorts'] = sort
+
+        has_more = True
+        raw_data = []
+        while has_more:
+            response = requests.post(
+                url, 
+                headers=self.client.headers,
+                json=data
+            )
+            response.raise_for_status()
+            response_json = response.json()
+
+            has_more = response_json.get('has_more')
+            data['start_cursor'] = response_json.get('next_cursor')
+            raw_data.append(response_json)
+            
+            if not pagination:
+                break
+        return raw_data
+
+    def get(
+        self: Self, 
+        filter: Optional[dict[str, Any]]=None,
+        sort: Optional[list[dict[str, str]]]=None,
+        pagination: bool = True
+    ) -> list[dict]:
         """
         Queries the database and fetches the results as a list of dictionaries.
 
         Parameters
         ----------
         filter : dict, optional
-            A filter to be applied to the query. Defaults to an empty filter.
+            A filter to be applied to the query. Default is None.
+            You can find more information here: https://developers.notion.com/reference/post-database-query-filter
+
+        sort : list, optional
+            A list of sorting options to be applied to the query. Default is None.
+            You can find more information here: https://developers.notion.com/reference/post-database-query-sort
+
+        pagination : bool
+            If `True`, when the database has more than 100 records, paging will be used to retrieve all records.
+            If `False`, only the first 100 records will be retrieved.
 
         Returns
         -------
         list[dict]
             A list of dictionaries, each representing a page in the database.
             Each dictionary contains the page's properties, processed according to their type.
+            See the `processors` module for more information.
         """
-        db = self.fetch(filter=filter)
-        results = db['results']
+        db = self.fetch(
+            filter=filter,
+            sort=sort,
+            pagination=pagination
+        )
         content = []
-        for result in results:
-            properties = result['properties']
-            content.append({
-                key: processors[value['type']](value)
-                for key, value in properties.items()
-            })
+        for cur in db:
+            results = cur['results']
+            for result in results:
+                properties = result['properties']
+                content.append({
+                    key: processors[value['type']](value)
+                    for key, value in properties.items()
+                })
         return content
 
     @classmethod
